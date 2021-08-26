@@ -1,5 +1,5 @@
 require('dotenv').config();
-
+const bodyParser = require('body-parser');
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
@@ -33,17 +33,16 @@ const dbconnection = require('./database/db');
 
 
 
-app.use( express.json() );
+app.use( express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use(helmet());
 
-// Sauce
 app.use('/api/auth', require('./routes/auth.routes'));
-
-
 // Reading and parsing the body
 
 module.exports = app;

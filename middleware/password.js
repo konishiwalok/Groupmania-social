@@ -1,4 +1,3 @@
-
 const passwordSchema = require('../models/Password');
 
 module.exports = (req, res, next) => {
