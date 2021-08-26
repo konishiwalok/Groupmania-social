@@ -1,7 +1,5 @@
 require('dotenv').config();
 
-
-const apiRouter = require('./apiRouter').router;
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
@@ -9,7 +7,7 @@ const helmet = require('helmet');
 // Create the express server
 const app = express();
 const rateLimit = require("express-rate-limit");
-const { dbConnection } = require('./database/config');
+// const { dbConnection } = require('./database/config');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -34,7 +32,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(helmet());
 
 // Sauce
-app.use('/api/', apiRouter);
+app.use('/api/auth', require('./routes/auth.routes'));
 
 
 // Reading and parsing the body
