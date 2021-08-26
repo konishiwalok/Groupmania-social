@@ -3,8 +3,6 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
-
-// Create the express server
 const app = express();
 const rateLimit = require("express-rate-limit");
 // const { dbConnection } = require('./database/config');
@@ -23,6 +21,17 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
 });
+
+const session = require('express-session');
+app.use(session({
+secret:'secret',
+resave: true,
+saveUninitialized:true
+}));
+
+const dbconnection = require('./database/db');
+
+
 
 app.use( express.json() );
 

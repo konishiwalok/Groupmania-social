@@ -1,18 +1,12 @@
 const bcrypt = require("bcryptjs");
 const cryptojs = require('crypto-js');
-const models = require('../models/user');
 
 const { generateJWT } = require("../helpers/jwt");
+const User = require("../models/User");
 
 exports.signup = (req, res, next) => {
-
-
-  // const firstName = req.body.firstName;
-  // const lastName = req.body.lastName;
-  // const bio = req.body.bio;
-  
   const cryptedResearchedEmail = cryptojs.HmacSHA256(req.body.email, process.env.EMAIL_KEY).toString();
- User.findOne({ email: cryptedResearchedEmail })
+  User.findOne({ email: cryptedResearchedEmail })
     .then(user => {
       if (user) {
         return res.status(401).json({
@@ -25,11 +19,7 @@ exports.signup = (req, res, next) => {
 
           const user = new User({
             email: cryptojs.HmacSHA256(req.body.email, process.env.EMAIL_KEY).toString(), // cryptage de l'email, méthode 'HmacSHA256' SANS salage (pour pouvoir ensuite rechercher l'utilisateur simplement lors du login),
-            // password: hash,
-            // firstName: firstName,
-            // lastName: lastName,
-            // bio: bio,
-            // isAdmin: 0,
+            password: hash
           });
           user.save()
             .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
@@ -45,7 +35,7 @@ exports.signup = (req, res, next) => {
 
 exports.login = (req, res, next) => {
   const cryptedResearchedEmail = cryptojs.HmacSHA256(req.body.email, process.env.EMAIL_KEY).toString();
- User.findOne({ email: cryptedResearchedEmail })
+  User.findOne({ email: cryptedResearchedEmail })
     .then(user => {
       if (!user) {
         return res.status(401).json({ error: 'Utilisateur non trouvé !' });

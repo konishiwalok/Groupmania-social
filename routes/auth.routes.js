@@ -19,6 +19,7 @@ router.post('/signup',
     userCtrl.signup
 );
 
+
 router.post('/login',
     [
         check('email', 'Le courrier est obligatoire').isEmail(),
