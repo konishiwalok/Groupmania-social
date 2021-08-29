@@ -1,10 +1,11 @@
 const mysql = require("mysql");
+const Sequelize = require("sequelize")
 require('dotenv').config();
 const dbConnection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  database: process.env.database_development_groupmania ,
 });
 
 dbConnection.connect((error) => {
@@ -16,3 +17,6 @@ dbConnection.connect((error) => {
 });
 
 module.exports = dbConnection;
+
+
+// database: process.env.DB_DATABASE,
