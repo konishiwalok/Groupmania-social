@@ -1,12 +1,12 @@
 const bcrypt = require("bcryptjs");
 const cryptojs = require('crypto-js');
-
 const { generateJWT } = require("../helpers/jwt");
+const model = require('../migrations/20210825141043-create-user');
 const User = require("../models/User");
 
 exports.signup = (req, res, next) => {
   const cryptedResearchedEmail = cryptojs.HmacSHA256(req.body.email, process.env.EMAIL_KEY).toString();
-  User.findOne({ email: cryptedResearchedEmail })
+  User.create({ email: cryptedResearchedEmail })
     .then(user => {
       if (user) {
         return res.status(401).json({
@@ -17,7 +17,7 @@ exports.signup = (req, res, next) => {
       bcrypt.hash(req.body.password, 10)
         .then(hash => {
 
-          const user = new User({
+          const user = new User({ 
             email: cryptojs.HmacSHA256(req.body.email, process.env.EMAIL_KEY).toString(), // cryptage de l'email, méthode 'HmacSHA256' SANS salage (pour pouvoir ensuite rechercher l'utilisateur simplement lors du login),
             password: hash
           });
@@ -26,10 +26,8 @@ exports.signup = (req, res, next) => {
             .catch(error => res.status(400).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
-    })
+    })   
     .catch(error => res.status(500).json({ error }));
-
-
 
 };
 
