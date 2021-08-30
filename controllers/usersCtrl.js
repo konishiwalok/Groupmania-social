@@ -211,3 +211,85 @@ exports.findAll = (req, res) => {
           }
       })
 };
+
+exports.update = async(req, res, next) => {
+  // Parametres
+  const pseudo = req.body.pseudo;
+  const email = req.body.email;
+  const password = req.body.password;
+  const imageUrl = req.body && req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null;
+
+  const emailExists = await User.findOne({ where: { email: email } });
+  const pseudoExists = await User.findOne({ where: { pseudo: pseudo } });
+
+  if (emailExists != null || pseudoExists !== null) {
+      return res.status(406).json({ error: "Email already registered" })
+  } else {
+
+      asyncLib.waterfall([
+
+              // Checks if the request is sent from an registered user
+              function(done) {
+                  User.findOne({
+                          where: { id: req.body.userId }
+                      }).then(function(userFound) {
+                          done(null, userFound);
+                      })
+                      .catch(function(err) {
+                          return res.status(500).json({ 'error': 'unable to verify user' });
+                      });
+              },
+
+              function(userFound, done) {
+
+                  // Checks if the user is the owner of the targeted one
+                  if (userFound.id == req.body.userId) {
+
+                      // If the request got a password
+                      if (password !== "") {
+                          bcrypt.hash(password, 12)
+                              .then(hash => {
+                                  userFound.update({
+                                          pseudo: (pseudo ? pseudo : userFound.pseudo),
+                                          email: (email ? email : userFound.email),
+                                          password: hash,
+                                          imageUrl: (imageUrl ? imageUrl : userFound.imageUrl)
+                                      })
+                                      .then(function() {
+                                          done(userFound);
+                                      })
+                                      .catch(function(err) {
+                                          res.status(500).json({ 'error': 'cannot update user' });
+                                      })
+                              })
+                              // If not
+                      } else if (password == "") {
+                          userFound.update({
+                                  pseudo: (pseudo ? pseudo : userFound.pseudo),
+                                  email: (email ? email : userFound.email),
+                                  imageUrl: (imageUrl ? imageUrl : userFound.imageUrl),
+                                  password: userFound.password,
+                              })
+                              .then(function() {
+                                  done(userFound);
+                              })
+                              .catch(function(err) {
+                                  res.status(500).json({ 'error': 'cannot update user' });
+                              })
+                      } else {
+                          res.status(404).json({ 'error': 'user not found' });
+                      }
+                  } else {
+                      res.status(401).json({ 'error': 'user not allowed' });
+                  }
+              },
+          ],
+          function(userFound) {
+              if (userFound) {
+                  return res.status(201).json(userFound);
+              } else {
+                  return res.status(500).json({ 'error': 'cannot update user profile' });
+              }
+          });
+  }
+};
