@@ -1,4 +1,3 @@
-// Imports
 const express = require('express')
 const app = express()
 const path = require("path");
@@ -7,13 +6,12 @@ const helmet = require('helmet');
 const rateLimit = require("express-rate-limit");
 
 // routes
-const postsRoutes = require("./routes/posts");
+
 const usersRoutes = require("./routes/users");
-const commentsRoutes = require("./routes/comments");
 
 
-require('dotenv').config(); // private code plugin
-const cors = require('cors'); // API calls plugin
+require('dotenv').config(); 
+const cors = require('cors'); 
 const bodyParser = require('body-parser');
 require("./db.config");
 
@@ -28,18 +26,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-app.use(cors());
-app.use('/api/post', postsRoutes);
+app.use(cors())
+
 app.use('/api/users', usersRoutes);
-app.use('/api/post', commentsRoutes);
 
-// Input sanitization against XXS attacks
+// security
 app.use(xss());
-
-// Set HTTP headers with helmet
 app.use(helmet());
-
-// Limit several sessions in a shortime to avoid force's attacks
 app.use(rateLimit());
 
 module.exports = app;

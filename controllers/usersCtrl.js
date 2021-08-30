@@ -8,9 +8,7 @@ const asyncLib = require('async');
 
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-// ----------  CRUD MODEL  ----------  //
 
-// ----------  SIGN UP  (CREATE) ----------  //
 exports.signup = async(req, res, next) => {
 
     // Params
@@ -92,9 +90,6 @@ exports.signup = async(req, res, next) => {
         });
 };
 
-
-
-// ----------  LOGIN  (READ) ----------  //
 exports.login = (req, res, next) => {
 
     // Params
@@ -140,16 +135,13 @@ exports.login = (req, res, next) => {
             }
         }
 
-        // 4. Return userId with a unique token
+        // userId with a unique token
     ], function(userFound) {
         if (userFound) {
             return res.status(200).json({
                 userId: userFound.id,
-                // creates a token with the jwt method sign
                 token: jwt.sign({ userId: userFound.id },
-                    // must be a long non specific and random characters
                     process.env.DB_TOKEN,
-                    // make the token expires after 8h
                     { expiresIn: '8h' }
                 ),
                 isAdmin: userFound.isAdmin
@@ -157,5 +149,22 @@ exports.login = (req, res, next) => {
         } else {
             return res.status(500).json({ 'error': 'cannot log on user' });
         }
+    });
+};
+
+exports.findOne = (req, res, next) => {
+
+    // Getting user infos linked to his id
+    User.findOne({
+        attributes: ['id', 'email', 'pseudo', 'imageUrl', 'isAdmin'],
+        where: { id: req.body.userId }
+    }).then((user) => {
+        if (user) {
+            res.status(201).json(user); // confirm if found
+        } else {
+            res.status(404).json({ 'error': 'user not found' });
+        }
+    }).catch((err) => {
+        res.status(500).json({ 'error': 'cannot fetch user' });
     });
 };
