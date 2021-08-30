@@ -168,3 +168,46 @@ exports.findOne = (req, res, next) => {
         res.status(500).json({ 'error': 'cannot fetch user' });
     });
 };
+
+exports.findAll = (req, res) => {
+
+  asyncLib.waterfall([
+
+          // 1. Check if the user exists
+          function(done) {
+              User.findOne({
+                      where: { id: req.body.userId }
+                  })
+                  .then(function(userFound) {
+                      done(null, userFound);
+                  })
+                  .catch(function(err) {
+                      return res.status(500).json({ 'error': 'unable to verify user' });
+                  });
+          },
+          // 2. If found, get all users by pseudo and id
+          function(userFound, done) {
+              if (userFound && userFound.isAdmin == 1) {
+                  User.findAll({
+                          attributes: ['id', 'pseudo', 'email', 'imageUrl', 'isAdmin', 'createdAt']
+                      })
+                      .then(function(users) {
+                          done(users)
+                      }).catch(function(err) {
+                          console.log(err);
+                          res.status(500).json({ "error": "invalid fields" });
+                      });
+              } else {
+                  res.status(404).json({ 'error': 'user not allowed' });
+              }
+          },
+          // 3. if done, confirm it
+      ],
+      function(users) {
+          if (users) {
+              return res.status(201).json(users);
+          } else {
+              return res.status(500).json({ 'error': 'cannot send users' });
+          }
+      })
+};
