@@ -1,50 +1,45 @@
-
-require('dotenv').config();
-const bodyParser = require('body-parser');
-const express = require('express');
-const path = require('path');
+// Imports
+const express = require('express')
+const app = express()
+const path = require("path");
+const xss = require('xss-clean');
 const helmet = require('helmet');
-const app = express();
 const rateLimit = require("express-rate-limit");
-const { dbConnection } = require('./database/db');
-const limiter = rateLimit({
-  windowMs: 5 * 60 * 1000, //  5mn
-  max: 55, // 5 try mqximum
-  message: " Trop de tentatives échouées, réessayez dans 5 minutes",
-});
 
-//CORS CROSS ORIGIN RESEARCH SEARCHING
+// routes
+const postsRoutes = require("./routes/posts");
+const usersRoutes = require("./routes/users");
+const commentsRoutes = require("./routes/comments");
+
+
+require('dotenv').config(); // private code plugin
+const cors = require('cors'); // API calls plugin
+const bodyParser = require('body-parser');
+require("./db.config");
+
+
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();
 });
-
-const session = require('express-session');
-app.use(session({
-  secret:'secret',
-  resave: true,
-  saveUninitialized:true
-}));
-
-app.use( express.json());
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-//images multer
+app.use(bodyParser.json());
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
+app.use(cors());
+app.use('/api/post', postsRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/post', commentsRoutes);
 
-app.use('/api/user', require('./routes/user.routes'));
+// Input sanitization against XXS attacks
+app.use(xss());
 
-// app.use('/api/post', postsRoutes);
-// app.use('/api/post', commentsRoutes);
-
-//securtity 
-app.use(limiter);
+// Set HTTP headers with helmet
 app.use(helmet());
-app.use(rateLimit());
 
+// Limit several sessions in a shortime to avoid force's attacks
+app.use(rateLimit());
 
 module.exports = app;

@@ -1,26 +1,26 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 module.exports = (req, res, next) => {
-  // read token
-  const token = req.headers.authorization.split(" ")[1];
+    try {
+         const token = req.headers.authorization.split(' ')[1];
+       const decodedToken = jwt.verify(token, process.env.DB_TOKEN);
+       const userId = decodedToken.userId;
+       
+       if (req.body.userId && req.body.userId !== userId) {
+            throw 'ID utilisateur non valide!';
+        } else {
+      
 
-  if (!token) {
-    return res.status(401).json({
-      ok: false,
-      msg: "There is no token in the request",
-    });
-  }
-
-  try {
-    const { uid } = jwt.verify(token, process.env.JWT_KEY);
-
-    req.userId = uid;
-
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      ok: false,
-      msg: "Token non valable",
-    });
-  }
+            req.token = token;
+            req.body.userId = userId;
+          
+            next();
+        }
+    } catch {
+        console.log('error JWT');
+        return res.status(401).json({
+            error: new Error('Invalid request!')
+        });
+    }
 };
