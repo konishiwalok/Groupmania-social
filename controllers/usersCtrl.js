@@ -161,7 +161,7 @@ exports.login = (req, res, next) => {
         return res.status(200).json({
           userId: userFound.id,
           token: jwt.sign({ userId: userFound.id }, process.env.DB_TOKEN, {
-            expiresIn: "8h",
+            expiresIn: "3h",
           }),
           isAdmin: userFound.isAdmin,
         });
