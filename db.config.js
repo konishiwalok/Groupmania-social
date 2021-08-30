@@ -14,7 +14,7 @@ const sequelize = new Sequelize({
 const db = {};
 try {
     db;
-    console.log('dbconnection is okey!');
+    console.log('connect to the dataBase!');
 } catch (error) {
     console.error('Impossible de se connecter, erreur suivante :', error);
 }
