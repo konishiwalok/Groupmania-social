@@ -21,5 +21,6 @@ router.post('/login', rateLimiter, usersCtrl.login);
 router.get('/profile', auth, usersCtrl.findOne);
 router.get('/', auth, usersCtrl.findAll);
 router.put('/:id', auth, multer, usersCtrl.update);
+router.delete('/:id', auth, usersCtrl.delete);
 
 module.exports = router;
