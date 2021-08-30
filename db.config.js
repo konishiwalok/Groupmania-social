@@ -5,9 +5,9 @@ require('dotenv').config();
 const sequelize = new Sequelize({
 
     host: 'DB_HOST',
-    user: 'DB_USERNAME',
-    password: 'DB_PASS',
-    database: 'groupomania_development',
+    user: 'DB_USER',
+    password: 'DB_PASSWORD',
+    database: 'database_development_groupmania',
     dialect: "mysql"
 
 });

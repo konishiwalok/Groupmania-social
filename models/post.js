@@ -16,18 +16,17 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false
         }
       })
+      models.Post.hasMany(models.Comment);
     }
   };
   Post.init({
     idUSERS: DataTypes.INTEGER,
-    title: DataTypes.STRING,
     content: DataTypes.STRING,
-    attacchement: DataTypes.STRING,
-    date: DataTypes.INTEGER,
-    likes: DataTypes.INTEGER
+    imageUrl: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Post',
+    paranoid: true,
   });
   return Post;
 };
