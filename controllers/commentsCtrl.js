@@ -3,7 +3,7 @@ const Comment = db.comment;
 const User = db.user;
 const asyncLib = require('async');
 
-
+// CREATE COMMENT  POST
 
 exports.createComment = (req, res, next) => {
 
@@ -56,3 +56,17 @@ exports.createComment = (req, res, next) => {
         }
     })
 };
+
+// GET COMMENTS_CTRL
+
+exports.getAllComments = (req, res, next) => {
+
+        Comment.findAll({
+                include: [{ // Links the post with User and Comments tables
+                    model: User,
+                    attributes: ['pseudo', 'imageUrl', 'isAdmin']
+                }]
+            })
+            .then((comment => res.status(200).json(comment)))
+            .catch(() => res.status(400).json({ error: "Erreur lors de l'affichage des commentaires" }));
+    },
