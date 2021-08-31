@@ -2,21 +2,21 @@
   "development": {
     "username": "root",
     "password": "root",
-    "database": "database_development_groupmania",
+    "database": "database_development_mania",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
     "password": "root",
-    "database": "database_test_groupmania",
+    "database": "database_test_mania",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
     "password": "root",
-    "database": "database_production_groupmania",
+    "database": "database_production_mania",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }
