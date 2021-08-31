@@ -46,7 +46,7 @@ db.comment.belongsTo(db.user, {
 db.post.hasMany(db.comment);
 
 db.comment.belongsTo(db.post, {
-    foreignKey: "postId",
+    foreignKey: "idPOSTS",
 });
 
 module.exports = db;
