@@ -19,7 +19,6 @@ exports.signup = async (req, res, next) => {
   const password = req.body.password;
   const imageUrl = "https://pic.onlinewebfonts.com/svg/img_24787.png";
 
-  // Checking if any of inputs are blanks
   if (
     req.body.pseudo == null ||
     req.body.email == null ||
@@ -29,7 +28,6 @@ exports.signup = async (req, res, next) => {
       .status(400)
       .json({ error: "Merci de renseigner tous les champs !" });
   }
-  // Checking required pseudo length
   if (req.body.pseudo.length >= 13 || req.body.pseudo.length <= 4) {
     return res
       .status(400)
