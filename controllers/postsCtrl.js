@@ -5,10 +5,7 @@ const Comment = db.comment;
 const asyncLib = require("async");
 const ITEMS_LIMIT = 50;
 
-
 //creating post POST
-
-
 exports.createPost = (req, res, next) => {
   const imageUrl = req.file
     ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
@@ -16,7 +13,6 @@ exports.createPost = (req, res, next) => {
 
   asyncLib.waterfall(
     [
-      // Get the user to be linked with the post
       function (done) {
         User.findOne({
           where: { id: req.body.userId },
@@ -28,8 +24,6 @@ exports.createPost = (req, res, next) => {
             return res.status(500).json({ error: "unable to verify user" });
           });
       },
-
-      // If found, create the post with inputs
       function (userFound, done) {
         if (userFound) {
           Post.create({
@@ -43,8 +37,6 @@ exports.createPost = (req, res, next) => {
           res.status(404).json({ error: "user not found" });
         }
       },
-
-      // if done, confirm it
     ],
     function (newPost) {
       if (newPost) {
@@ -70,10 +62,8 @@ exports.findAll = (req, res) => {
 
   asyncLib.waterfall(
     [
-      // If found, get all posts by pseudo
       function (done) {
         Post.findAll({
-          // Never Trust User Inputs -> test them
           order: [order != null ? order.split(":") : ["createdAt", "DESC"]],
           attributes:
             fields !== "*" && fields != null ? fields.split(",") : null,
@@ -81,7 +71,6 @@ exports.findAll = (req, res) => {
           offset: !isNaN(offset) ? offset : null,
           include: [
             {
-              // Links the post with User and Comments tables
               model: User,
               Comment,
               attributes: ["pseudo", "imageUrl", "isAdmin"],
@@ -96,7 +85,6 @@ exports.findAll = (req, res) => {
             res.status(500).json({ error: "invalid fields" });
           });
       },
-      // if done, confirm it
     ],
     function (posts) {
       if (posts) {
@@ -113,7 +101,6 @@ exports.findAll = (req, res) => {
 exports.deletePost = (req, res, next) => {
   asyncLib.waterfall(
     [
-      // Checks if the request is sent from an registered user
       function (done) {
         User.findOne({
           where: { id: req.body.userId },
@@ -125,8 +112,6 @@ exports.deletePost = (req, res, next) => {
             return res.status(500).json({ error: "unable to verify user" });
           });
       },
-
-      // Get the targeted post infos
       function (userFound, done) {
         Post.findOne({
           where: { id: req.params.id },
@@ -140,11 +125,7 @@ exports.deletePost = (req, res, next) => {
       },
 
       function (userFound, postFound) {
-        // Checks if the user is the owner of the targeted one
         if (userFound.id == postFound.userId || userFound.isAdmin == true) {
-          // or if he's admin
-
-          // Soft-deletion modifying the post the ad a timestamp to deletedAt
           Post.destroy({
             where: { id: req.params.id },
           })

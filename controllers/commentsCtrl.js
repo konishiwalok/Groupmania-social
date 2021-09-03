@@ -14,7 +14,6 @@ exports.createComment = (req, res, next) => {
 
   asyncLib.waterfall(
     [
-      //  Get the user to be linked with the post
       function (done) {
         User.findOne({
           where: { id: req.body.userId },
@@ -26,11 +25,8 @@ exports.createComment = (req, res, next) => {
             return res.status(500).json({ error: "unable to verify user" });
           });
       },
-
-      // If found, create comment with input
       function (userFound, done) {
         if (userFound) {
-          // Create the post and save it in DB
           Comment.create({
             content: req.body.content,
             UserId: userFound.id,
@@ -46,8 +42,6 @@ exports.createComment = (req, res, next) => {
           res.status(404).json({ error: "user not found" });
         }
       },
-
-      // if done, confirm it
     ],
     function (newComment) {
       if (newComment) {
@@ -65,7 +59,6 @@ exports.createComment = (req, res, next) => {
   Comment.findAll({
     include: [
       {
-        // Links the post with User and Comments tables
         model: User,
         attributes: ["pseudo", "imageUrl", "isAdmin"],
       },
@@ -83,7 +76,6 @@ exports.createComment = (req, res, next) => {
   (exports.deleteComment = (req, res, next) => {
     asyncLib.waterfall(
       [
-        // Checks if the request is sent from an registered user
         function (done) {
           User.findOne({
             where: { id: req.body.userId },
@@ -95,8 +87,6 @@ exports.createComment = (req, res, next) => {
               return res.status(500).json({ error: "unable to verify user" });
             });
         },
-
-        // Get the targeted comment infos
         function (userFound, done) {
           Comment.findOne({
             where: { id: req.params.id },
@@ -110,7 +100,6 @@ exports.createComment = (req, res, next) => {
         },
 
         function (userFound, commentFound, done) {
-          // Checks if the user is the owner of the targeted one
           if (
             userFound.id == commentFound.userId ||
             userFound.isAdmin == true
