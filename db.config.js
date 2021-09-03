@@ -7,7 +7,7 @@ const sequelize = new Sequelize({
     host: 'DB_HOST',
     user: 'DB_USER',
     password: 'DB_PASSWORD',
-    database: 'database_development_mania',
+    database: 'groupomania_development',
     dialect: "mysql"
 
 });

@@ -9,6 +9,7 @@ const asyncLib = require("async");
 const EMAIL_REGEX =
   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
+
 //POST SIGNUP
 
 exports.signup = async (req, res, next) => {
@@ -32,17 +33,23 @@ exports.signup = async (req, res, next) => {
       .status(400)
       .json({ error: "wrong pseudo (must be length 5 - 12)" });
   }
+  // Checking required email format
   if (!EMAIL_REGEX.test(req.body.email)) {
     return res.status(400).json({ error: "email is not valid" });
   }
+
+  // Using Waterfall to enchain functions
   asyncLib.waterfall(
     [
+      //Checks if User exists
       function (done) {
+        // done = main parameter
         User.findOne({
           attributes: ["email"],
           where: { email: email },
         })
           .then(function (userFound) {
+            // userFound will be next parameter
             done(null, userFound);
           })
           .catch(function (err) {
@@ -50,9 +57,11 @@ exports.signup = async (req, res, next) => {
           });
       },
 
+      // If not, Hash the password
       function (userFound, done) {
         if (!userFound) {
           bcrypt.hash(password, 12, function (err, bcryptedPassword) {
+            // new param to add next
             done(null, userFound, bcryptedPassword);
           });
         } else {
@@ -60,7 +69,10 @@ exports.signup = async (req, res, next) => {
         }
       },
 
+      // Create User in DB
       function (userFound, bcryptedPassword, done) {
+        // keeping previous params
+        // Use the model to create a new User
         let newUser = User.create({
           email: email,
           pseudo: pseudo,
@@ -69,7 +81,7 @@ exports.signup = async (req, res, next) => {
           isAdmin: 0,
         })
           .then(function (newUser) {
-            done(newUser);
+            done(newUser); // final param to use
           })
           .catch(function (err) {
             return res.status(500).json({ error: "cannot add user" });
@@ -77,6 +89,7 @@ exports.signup = async (req, res, next) => {
       },
     ],
 
+    // after created, return new User id
     function (newUser) {
       if (newUser) {
         return res.status(201).json({
@@ -102,6 +115,7 @@ exports.login = (req, res, next) => {
 
   asyncLib.waterfall(
     [
+      // Checks if users exists
       function (done) {
         User.findOne({
           where: { email: email },
@@ -113,6 +127,8 @@ exports.login = (req, res, next) => {
             return res.status(500).json({ error: "unable to verify user" });
           });
       },
+
+      //  If so, compare password hashes
       function (userFound, done) {
         if (userFound) {
           bcrypt.compare(
@@ -126,15 +142,17 @@ exports.login = (req, res, next) => {
           return res.status(404).json({ error: "user not exist in DB" });
         }
       },
+
+      // If hashes matched, select user
       function (userFound, resBycrypt, done) {
         if (resBycrypt) {
           done(userFound);
         } else {
-          return res
-            .status(403)
-            .json({ error: "invalid user or password ,try again" });
+          return res.status(403).json({ error: "invalid user or password ,try again" });
         }
       },
+
+      // userId with a unique token
     ],
     function (userFound) {
       if (userFound) {
@@ -152,9 +170,11 @@ exports.login = (req, res, next) => {
   );
 };
 
+
 //GET
 
 exports.findOne = (req, res, next) => {
+  // Getting user infos linked to his id
   User.findOne({
     attributes: ["id", "email", "pseudo", "imageUrl", "isAdmin"],
     where: { id: req.body.userId },
@@ -174,6 +194,7 @@ exports.findOne = (req, res, next) => {
 exports.findAll = (req, res) => {
   asyncLib.waterfall(
     [
+      // 1. Check if the user exists
       function (done) {
         User.findOne({
           where: { id: req.body.userId },
@@ -185,6 +206,7 @@ exports.findAll = (req, res) => {
             return res.status(500).json({ error: "unable to verify user" });
           });
       },
+      // 2. If found, get all users by pseudo and id
       function (userFound, done) {
         if (userFound && userFound.isAdmin == 1) {
           User.findAll({
@@ -208,6 +230,7 @@ exports.findAll = (req, res) => {
           res.status(404).json({ error: "user not allowed" });
         }
       },
+      // 3. if done, confirm it
     ],
     function (users) {
       if (users) {
@@ -220,6 +243,7 @@ exports.findAll = (req, res) => {
 };
 
 //MODIFY
+
 
 exports.update = async (req, res, next) => {
   // Parametres
@@ -239,6 +263,7 @@ exports.update = async (req, res, next) => {
   } else {
     asyncLib.waterfall(
       [
+        // Checks if the request is sent from an registered user
         function (done) {
           User.findOne({
             where: { id: req.body.userId },
@@ -252,7 +277,9 @@ exports.update = async (req, res, next) => {
         },
 
         function (userFound, done) {
+          // Checks if the user is the owner of the targeted one
           if (userFound.id == req.body.userId) {
+            // If the request got a password
             if (password !== "") {
               bcrypt.hash(password, 12).then((hash) => {
                 userFound
@@ -269,6 +296,7 @@ exports.update = async (req, res, next) => {
                     res.status(500).json({ error: "cannot update user" });
                   });
               });
+              // If not
             } else if (password == "") {
               userFound
                 .update({
@@ -302,11 +330,14 @@ exports.update = async (req, res, next) => {
   }
 };
 
+
 //DELATE
+
 
 exports.delete = (req, res, next) => {
   asyncLib.waterfall(
     [
+      // Checks if the request is sent from an registered user
       function (done) {
         User.findOne({
           where: { id: req.body.userId },
@@ -320,13 +351,17 @@ exports.delete = (req, res, next) => {
       },
 
       function (userFound, done) {
+        // Checks if the user is the owner of the targeted one
         if (userFound.id == req.body.userId || userFound.isAdmin == true) {
+          // or if he's admin
+
+          // Soft-deletion modifying the post the ad a timestamp to deletedAt
           User.destroy({
             where: { id: req.params.id },
           })
             .then(() =>
               res.status(200).json({ message: "Utilisateur supprimé" })
-            )
+            ) // send confirmation if done
             .catch((error) =>
               res.status(500).json({ error: "cannot delete user" })
             );

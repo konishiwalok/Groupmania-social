@@ -5,7 +5,9 @@ const Comment = db.comment;
 const asyncLib = require("async");
 const ITEMS_LIMIT = 50;
 
+
 //creating post POST
+
 exports.createPost = (req, res, next) => {
   const imageUrl = req.file
     ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
