@@ -39,8 +39,9 @@ sequelize db:migrate
 DB_HOST= 'localhost'
 DB_USERNAME= 'root'
 DB_PASS= 'root'
-DB_TOKEN= 'SF45DBGdfbvsgbsdgh345Sdbgvfgbdfb3453fbdgh'
+DB_TOKEN= 'SF45DBGdfbvsgbsdgh345Sdbgvfgbdfb3453f558bdghbakwbd45468khavskhdfkyak26298awdaw'
 
 you ll need to have  MAMP/ LAMP /  XAAMP  CONNCETED at the moment you ll run the backend and frontend
 
 thats all you need to do for the backend 👋👋👋👋
+

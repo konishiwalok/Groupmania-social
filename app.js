@@ -5,7 +5,7 @@ const xss = require('xss-clean');
 const helmet = require('helmet');
 const rateLimit = require("express-rate-limit");
 
-// routes
+// on va importer les routes 
 
 const usersRoutes = require("./routes/users");
 const postsRoutes = require("./routes/posts");
