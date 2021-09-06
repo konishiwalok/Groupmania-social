@@ -16,7 +16,7 @@ const rateLimiter = rateLimit({
     message: " Trop de tentatives échouées, réessayez dans 5 minutes",
 });
 
-// ----------  USERS ROUTES  ----------  //
+// USERS ROUTES  //
 
 //methode router, le 1ere argument on reseigne la route , + validations de securite + le verbe HTTp sera signup +La fonction a executer
 
