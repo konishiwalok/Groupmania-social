@@ -119,7 +119,7 @@ exports.createComment = (req, res, next) => {
         },
       ],
 
-      function (userFound) {  //on verifie si userfound est toujours valide si cest  le cas on returne une reponse 201 en dissant que que le userfound a etait correctement supprime (commentqire)
+      function (userFound) {  //on verifie si userfound est toujours valide si cest  le cas on returne une reponse 201 en dissant que que le commentaire e etait supprime
         if (userFound) {
           return res.status(201).json({ message: "post deleted" });
         } else {

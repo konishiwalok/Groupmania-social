@@ -88,7 +88,7 @@ exports.signup = async (req, res, next) => {
       },
     ],
 
-    //(s il n y aucun erreur 201 par defaut dans la methode post )on retourne un nouvel utilisateur avec son id qui sera stoke dans user.db +  on return une erreur error
+    //s il n y aucun erreur 201 par defaut dans la methode post ,on retourne un nouvel utilisateur avec son id qui sera stoke dans user.db +  on return une erreur error
 
     function (newUser) {
       if (newUser) {
@@ -381,7 +381,7 @@ exports.delete = (req, res, next) => {
     ],
 
     function (userFound) {
-      //on verifie si userfound est toujours valide si cest  le cas on returne une reponse 201 en dissant que que le userfound a etait correctement supprime (profile)
+      //on verifie si userfound est toujours valide si cest  le cas on returne une reponse 201 en dissant que que le profil a etait correctement supprime
       if (userFound) {
         return res.status(201).json({ message: "profile deleted" });
       } else {
